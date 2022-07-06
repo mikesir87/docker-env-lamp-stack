@@ -1,0 +1,100 @@
+services:
+  app:
+    build:
+      context: /Users/mikesir87/demo/operation-tofa
+      dockerfile: /Users/mikesir87/demo/operation-tofa/Dockerfile
+      target: dev
+    labels:
+      com.docker.devenvironments.compose: "true"
+      com.docker.devenvironments.compose.build: "true"
+      com.docker.devenvironments.name: operation-tofa-adoring_mendel
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: 80
+      protocol: tcp
+    - mode: ingress
+      target: 9003
+      published: 9003
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /Users/mikesir87/demo/operation-tofa/src
+      target: /var/www/html
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /Users/mikesir87/demo/operation-tofa/.docker/conf.d/xdebug.ini
+      target: /usr/local/etc/php/conf.d/docker-php-ext-debug.ini
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /Users/mikesir87/demo/operation-tofa/.docker/conf.d/error_reporting.ini
+      target: /usr/local/etc/php/conf.d/error_reporting.ini
+      bind:
+        create_host_path: true
+  db:
+    environment:
+      MARIADB_DATABASE: app
+      MARIADB_PASSWORD: s3cret
+      MARIADB_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_USER: app
+    image: mariadb
+    labels:
+      com.docker.devenvironments.compose: "true"
+      com.docker.devenvironments.name: operation-tofa-adoring_mendel
+    networks:
+      default: null
+  dev:
+    build:
+      context: /Users/mikesir87/demo/operation-tofa/.docker
+      dockerfile: /Users/mikesir87/demo/operation-tofa/.docker/Dockerfile
+    command:
+    - infinity
+    container_name: lamp-dev
+    entrypoint:
+    - sleep
+    init: true
+    labels:
+      com.docker.devenvironments.compose: "true"
+      com.docker.devenvironments.compose.build: "true"
+      com.docker.devenvironments.container: "true"
+      com.docker.devenvironments.name: operation-tofa-adoring_mendel
+    networks:
+      default: null
+    stop_signal: SIGKILL
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /Users/mikesir87/demo/operation-tofa
+      target: /com.docker.devenvironments.code
+    - type: volume
+      source: vsCodeServerVolume-operation-tofa-adoring_mendel-dev
+      target: /home/vscode
+  phpmyadmin:
+    environment:
+      PMA_PASSWORD: s3cret
+      PMA_USER: app
+    image: phpmyadmin/phpmyadmin
+    labels:
+      com.docker.devenvironments.compose: "true"
+      com.docker.devenvironments.name: operation-tofa-adoring_mendel
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: 8080
+      protocol: tcp
+networks:
+  default:
+    name: operation-tofa-adoring_mendel_default
+volumes:
+  vsCodeServerVolume-operation-tofa-adoring_mendel-dev:
+    name: vsCodeServerVolume-operation-tofa-adoring_mendel-dev

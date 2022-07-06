@@ -1,0 +1,29 @@
+services:
+  dev:
+    build: ./.docker
+    container_name: lamp-dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  app:
+    build: 
+      context: ./
+      target: dev
+    ports:
+      - 80:80
+      - 9003:9003
+    volumes:
+      - ./src:/var/www/html
+  db:
+    image: mariadb
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: yes
+      MARIADB_USER: app
+      MARIADB_PASSWORD: s3cret
+      MARIADB_DATABASE: app
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8080:80
+    environment:
+      PMA_USER: app
+      PMA_PASSWORD: s3cret
